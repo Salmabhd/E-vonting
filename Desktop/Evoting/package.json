@@ -1,0 +1,35 @@
+{
+  "name": "evoting",
+  "version": "1.0.0",
+  "description": "Evoting app - Système de vote électronique sécurisé",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest --verbose",
+    "migrate": "node database/migrate.js",
+    "seed": "node database/seed.js"
+  },
+  "keywords": [
+    "voting",
+    "security",
+    "sql-injection",
+    "education"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "mysql2": "^3.15.3",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.1.4"
+  }
+}

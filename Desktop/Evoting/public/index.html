@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoteX - Système de Vote Sécurisé</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        /* Login Page */
+        .login-container {
+            max-width: 450px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .login-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 15px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .login-tab:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        .login-tab:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        .login-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .demo-credentials h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .demo-credentials ul {
+            list-style: none;
+        }
+
+        .demo-credentials li {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        /* App Dashboard */
+        .app-container {
+            display: none;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        .user-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .user-badge.admin {
+            background: #e74c3c;
+        }
+
+        .logout-btn {
+            padding: 10px 25px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            opacity: 0.7;
+        }
+
+        .tab.active {
+            opacity: 1;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 0 10px 10px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .elections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .election-card {
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .election-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .election-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .election-card .category {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .election-card .status {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #4caf50;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .choices {
+            margin: 15px 0;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .choice-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .choice-btn:disabled {
+            background: #e0e0e0;
+            border-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .stats {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .stats h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗳️ VoteX</h1>
+            <p>Système de Vote Électronique Sécurisé</p>
+        </header>
+
+        <!-- ============================================ -->
+        <!-- PAGE DE LOGIN -->
+        <!-- ============================================ -->
+        <div id="login-page" class="login-container">
+            <h2>🔐 Connexion</h2>
+
+            <div class="login-tabs">
+                <button class="login-tab active" onclick="switchLoginTab('voter')">👥 Votant</button>
+                <button class="login-tab" onclick="switchLoginTab('admin')">⚙️ Admin</button>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" placeholder="Entrez votre nom d'utilisateur" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" placeholder="Entrez votre mot de passe" required>
+                </div>
+                <button type="submit" class="btn">Se connecter</button>
+            </form>
+
+            <div class="demo-credentials">
+                <h4>🔑 Comptes de démonstration</h4>
+                <p><strong>Votants :</strong></p>
+                <ul>
+                    <li>• alice / password123</li>
+                    <li>• bob / password123</li>
+                    <li>• charlie / password123</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Admin :</strong></p>
+                <ul>
+                    <li>• admin / admin123</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- APPLICATION (APRÈS LOGIN) -->
+        <!-- ============================================ -->
+        <div id="app-page" class="app-container">
+            <!-- Barre utilisateur -->
+            <div class="user-bar">
+                <div class="user-info">
+                    <span id="userWelcome">Bienvenue</span>
+                    <span id="userBadge" class="user-badge">Votant</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
+            </div>
+
+            <div id="message"></div>
+
+            <!-- Onglets (affichage conditionnel selon le rôle) -->
+            <div class="tabs">
+                <button id="tab-vote" class="tab active" onclick="showTab('vote')">🗳️ Voter</button>
+                <button id="tab-admin" class="tab hidden" onclick="showTab('admin')">⚙️ Administration</button>
+                <button id="tab-verify" class="tab hidden" onclick="showTab('verify')">✓ Vérifier</button>
+            </div>
+
+            <!-- Contenu : Vote -->
+            <div id="vote-content" class="tab-content active">
+                <h2>📋 Élections Actives</h2>
+                <div id="elections-list" class="elections-grid">
+                    <p>Chargement des élections...</p>
+                </div>
+            </div>
+
+            <!-- Contenu : Admin -->
+            <div id="admin-content" class="tab-content">
+                <h2>⚙️ Créer une Élection</h2>
+                <form id="createElectionForm">
+                    <div class="form-group">
+                        <label for="slug">Identifiant (slug) *</label>
+                        <input type="text" id="slug" placeholder="ex: president-2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Nom de l'élection *</label>
+                        <input type="text" id="name" placeholder="ex: Élection Président 2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Catégorie</label>
+                        <select id="category">
+                            <option value="club">Club</option>
+                            <option value="awards">Awards</option>
+                            <option value="events">Events</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="choices">Choix (un par ligne)</label>
+                        <textarea id="choices" rows="4" placeholder="Candidat A&#10;Candidat B&#10;Candidat C"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Créer l'élection</button>
+                </form>
+
+                <div class="stats" style="margin-top: 30px;">
+                    <h4>📊 Actions rapides</h4>
+                    <button class="btn" onclick="activateLastElection()" style="margin-top: 10px;">Activer la dernière élection</button>
+                </div>
+            </div>
+
+            <!-- Contenu : Vérification -->
+            <div id="verify-content" class="tab-content">
+                <h2>✓ Vérifier si un utilisateur a voté</h2>
+                <form id="verifyForm">
+                    <div class="form-group">
+                        <label for="verifyUser">Nom d'utilisateur</label>
+                        <input type="text" id="verifyUser" placeholder="ex: alice">
+                    </div>
+                    <div class="form-group">
+                        <label for="verifyElection">Élection (slug)</label>
+                        <input type="text" id="verifyElection" placeholder="ex: president-club-2025">
+                    </div>
+                    <button type="submit" class="btn">Vérifier</button>
+                </form>
+                <div id="verifyResult" class="stats" style="display:none; margin-top: 20px;">
+                    <h4>Résultat :</h4>
+                    <p id="verifyMessage"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let loginType = 'voter';
+
+        // ============================================
+        // GESTION DU LOGIN
+        // ============================================
+
+        function switchLoginTab(type) {
+            loginType = type;
+            document.querySelectorAll('.login-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, expected_role: loginType })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUser = data.user;
+                    showApp();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ Erreur de connexion au serveur');
+            }
+        });
+
+        function showApp() {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('app-page').classList.add('active');
+
+            // Personnaliser l'interface selon le rôle
+            document.getElementById('userWelcome').textContent = `Bienvenue, ${currentUser.full_name}`;
+            
+            const badge = document.getElementById('userBadge');
+            if (currentUser.role === 'admin') {
+                badge.textContent = 'Administrateur';
+                badge.classList.add('admin');
+                
+                // Afficher les onglets admin
+                document.getElementById('tab-admin').classList.remove('hidden');
+                document.getElementById('tab-verify').classList.remove('hidden');
+            } else {
+                badge.textContent = 'Votant';
+                badge.classList.remove('admin');
+            }
+
+            // Charger les élections
+            loadElections();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('login-page').classList.remove('hidden');
+            document.getElementById('app-page').classList.remove('active');
+            document.getElementById('loginForm').reset();
+        }
+
+        // ============================================
+        // GESTION DE L'APPLICATION
+        // ============================================
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => messageDiv.innerHTML = '', 5000);
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-content`).classList.add('active');
+
+            if (tabName === 'vote') {
+                loadElections();
+            }
+        }
+
+        async function loadElections() {
+            try {
+                const elections = [
+                    {
+                        slug: 'president-club-2025',
+                        name: 'Élection Président du Club 2025',
+                        category: 'club',
+                        status: 'active',
+                        choices: ['Alice Martin', 'Bob Dupont', 'Charlie Blanc']
+                    },
+                    {
+                        slug: 'meilleur-projet-annee',
+                        name: 'Meilleur Projet de l\'Année',
+                        category: 'awards',
+                        status: 'active',
+                        choices: ['Projet IA', 'Projet Web', 'Projet Mobile', 'Projet IoT']
+                    },
+                    {
+                        slug: 'event-weekend',
+                        name: 'Activité du Weekend',
+                        category: 'events',
+                        status: 'active',
+                        choices: ['Hackathon', 'Sortie Nature', 'Cinéma', 'Restaurant']
+                    }
+                ];
+
+                const container = document.getElementById('elections-list');
+                container.innerHTML = '';
+
+                for (const election of elections) {
+                    // Vérifier si l'utilisateur a déjà voté
+                    const hasVoted = await checkIfVoted(election.slug);
+
+                    const card = document.createElement('div');
+                    card.className = 'election-card';
+                    card.innerHTML = `
+                        <h3>${election.name}</h3>
+                        <span class="category">${election.category}</span>
+                        <span class="status">${election.status}</span>
+                        ${hasVoted ? '<p style="color: #4caf50; margin-top: 10px;">✅ Vous avez déjà voté</p>' : ''}
+                        <div class="choices">
+                            ${election.choices.map(choice => 
+                                `<button class="choice-btn" 
+                                    onclick="vote('${election.slug}', '${choice}')"
+                                    ${hasVoted ? 'disabled' : ''}
+                                >${choice}</button>`
+                            ).join('')}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            } catch (error) {
+                showMessage('Erreur lors du chargement des élections', 'error');
+            }
+        }
+
+        async function checkIfVoted(electionSlug) {
+            if (!currentUser || currentUser.role === 'admin') return false;
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/vote/verify?id=${currentUser.external_id}&election=${electionSlug}`
+                );
+                const data = await response.json();
+                return data.voted;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function vote(electionSlug, choice) {
+            if (!currentUser || !currentUser.external_id) {
+                showMessage('❌ Erreur: utilisateur non identifié', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/vote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        election_slug: electionSlug,
+                        user_external_id: currentUser.external_id,
+                        choice: choice
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`✅ ${data.message} - Votre choix: ${choice}`, 'success');
+                    loadElections(); // Recharger pour afficher "Vous avez déjà voté"
+                } else {
+                    showMessage(`❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erreur de connexion au serveur', 'error');
+            }
+        }
+
+        // Admin : Créer une élection
+        document.getElementById('createElectionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const slug = document.getElementById('slug').value;
+            const name = document.getElementById('name').value;
+            const category = document.getElementById('category').value;
+            const choicesText = document.getElementById('choices').value;
+            const choices = choicesText.split('\n').filter(c => c.trim());
+
+            try {
+                const response = await fetch(`${API_URL}/admin/election`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        slug,
+                        name,
+                        category,
+                        metadata: { choices }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`✅ ${data.message}`, 'success');
+                    e.target.reset();
+                } else {
+                    showMessage(`❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erreur de connexion', 'error');
+            }
+        });
+
+        // Admin : Vérifier un vote
+        document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('verifyUser').value;
+            const electionSlug = document.getElementById('verifyElection').value;
+
+            try {
+                // D'abord, récupérer l'external_id depuis le username
+                const userResponse = await fetch(`${API_URL}/admin/user/${username}`);
+                const userData = await userResponse.json();
+
+                if (!userResponse.ok) {
+                    showMessage(`❌ ${userData.error}`, 'error');
+                    return;
+                }
+
+                const response = await fetch(
+                    `${API_URL}/vote/verify?id=${userData.external_id}&election=${electionSlug}`
+                );
+                const data = await response.json();
+
+                const resultDiv = document.getElementById('verifyResult');
+                const messageP = document.getElementById('verifyMessage');
+                
+                resultDiv.style.display = 'block';
+                
+                if (data.voted) {
+                    messageP.innerHTML = `✅ L'utilisateur <strong>${username}</strong> a déjà voté pour <strong>${electionSlug}</strong>`;
+                } else {
+                    messageP.innerHTML = `ℹ️ L'utilisateur <strong>${username}</strong> n'a pas encore voté pour <strong>${electionSlug}</strong>`;
+                }
+            } catch (error) {
+                showMessage('❌ Erreur de vérification', 'error');
+            }
+        });
+
+        async function activateLastElection() {
+            const slug = prompt('Entrez le slug de l\'élection à activer:');
+            if (!slug) return;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/election/${slug}/activate`, {
+                    method: 'PATCH'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`✅ ${data.message}`, 'success');
+                } else {
+                    showMessage(`❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erreur d\'activation', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
