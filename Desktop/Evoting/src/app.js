@@ -11,6 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ============================================
+// MODE SÉCURISÉ (BASCULEMENT)
+// ============================================
+
+// Lire le mode depuis .env (par défaut: mode vulnérable pour la démo)
+const SECURE_MODE = process.env.SECURE_MODE === 'true';
+
+// ============================================
 // MIDDLEWARES DE SÉCURITÉ
 // ============================================
 
@@ -42,6 +49,7 @@ app.get('/api', (req, res) => {
     description: 'Système de vote électronique sécurisé',
     version: '1.0.0',
     status: 'running',
+    mode: SECURE_MODE ? 'SÉCURISÉ ✅' : 'VULNÉRABLE ⚠️',
     endpoints: {
       health: '/health',
       auth: '/api/auth/...',
@@ -56,14 +64,30 @@ app.get('/health', async (req, res) => {
   res.json({
     status: dbOk ? 'healthy' : 'unhealthy',
     database: dbOk ? 'connected' : 'disconnected',
+    mode: SECURE_MODE ? 'secure' : 'vulnerable',
     timestamp: new Date().toISOString()
   });
 });
 
-// Import des routes
+// ============================================
+// IMPORT DES ROUTES (BASCULEMENT)
+// ============================================
+
+// Route d'authentification (toujours la même)
 const authRoutes = require('./routes/auth');
-const publicRoutes = require('./routes/public');
-const adminRoutes = require('./routes/admin');
+
+// Routes avec basculement selon le mode
+let publicRoutes, adminRoutes;
+
+if (SECURE_MODE) {
+  // Mode sécurisé : utiliser les versions corrigées
+  publicRoutes = require('./routes/public.fixed');
+  adminRoutes = require('./routes/admin.fixed');
+} else {
+  // Mode vulnérable : utiliser les versions originales
+  publicRoutes = require('./routes/public');
+  adminRoutes = require('./routes/admin');
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api', publicRoutes);
@@ -95,6 +119,17 @@ app.use((err, req, res, next) => {
 async function startServer() {
   console.log('\n🚀 Démarrage de VoteX...\n');
   
+  // Afficher le mode actuel
+  if (SECURE_MODE) {
+    console.log('🔒 MODE: SÉCURISÉ ✅');
+    console.log('   Les versions corrigées des routes sont actives');
+    console.log('   Vulnérabilités: CORRIGÉES\n');
+  } else {
+    console.log('⚠️  MODE: VULNÉRABLE (DÉMO PÉDAGOGIQUE)');
+    console.log('   Les versions vulnérables sont actives');
+    console.log('   À utiliser uniquement pour la démonstration!\n');
+  }
+  
   const dbConnected = await testConnection();
   
   if (!dbConnected) {
@@ -105,10 +140,18 @@ async function startServer() {
     console.log(`\n✅ Serveur VoteX démarré avec succès!`);
     console.log(`   🌐 Interface: http://localhost:${PORT}`);
     console.log(`   🔧 API: http://localhost:${PORT}/api`);
-    console.log(`   📡 Port: ${PORT}\n`);
+    console.log(`   📡 Port: ${PORT}`);
+    console.log(`   🔐 Mode: ${SECURE_MODE ? 'SÉCURISÉ ✅' : 'VULNÉRABLE ⚠️'}\n`);
     console.log('👤 Comptes de test:');
     console.log('   Votants: alice, bob, charlie (password: password123)');
     console.log('   Admin: admin (password: admin123)\n');
+    
+    if (!SECURE_MODE) {
+      console.log('⚠️  AVERTISSEMENT:');
+      console.log('   Le serveur fonctionne en mode VULNÉRABLE');
+      console.log('   Pour activer le mode sécurisé, modifiez .env:');
+      console.log('   SECURE_MODE=true\n');
+    }
   });
 }
 
